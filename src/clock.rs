@@ -1,3 +1,4 @@
+
 use chrono::{DateTime, Duration, Local};
 use gloo_timers::callback::Interval;
 use yew::prelude::*;
@@ -10,10 +11,18 @@ pub enum ClockMessage {
     Tick,
 }
 
+#[derive(PartialEq)]
+#[allow(dead_code)]
+pub enum Alignment {
+    Left,
+    Right
+}
+
 #[derive(Properties, PartialEq)]
 pub struct ClockProperties {
     #[prop_or_default]
     pub shift: u8,
+    pub alignment: Alignment
 }
 
 impl Component for Clock {
@@ -35,11 +44,13 @@ impl Component for Clock {
         }
     }
 
-    fn view(&self, _ctx: &Context<Self>) -> Html {
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        let alignment_class = match ctx.props().alignment {
+            Alignment::Left => "text-start",
+            Alignment::Right => "text-end",
+        };
         html! {
-            <>
-                <p>{ self.now.format("%v %T") }</p>
-            </>
+            <div class={classes!("clock", alignment_class)}>{ self.now.format("%v %T") }</div>
         }
     }
 
