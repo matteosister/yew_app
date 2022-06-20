@@ -1,21 +1,21 @@
 use yew::prelude::*;
 
 mod clock;
+mod hn;
 
 use clock::Clock;
+use hn::*;
 
-enum Msg {
-}
+enum Msg {}
 
-struct Model {
-}
+struct Model {}
 
 impl Component for Model {
     type Message = Msg;
     type Properties = ();
 
     fn create(_ctx: &Context<Self>) -> Self {
-        Self {  }
+        Self {}
     }
 
     fn update(&mut self, _ctx: &Context<Self>, _msg: Self::Message) -> bool {
@@ -31,8 +31,9 @@ impl Component for Model {
                     <div class="col"><h1>{ "Yew App" }</h1></div>
                     <div class="col"><Clock alignment={clock::Alignment::Right} /></div>
                 </div>
+                <hr />
+                <TopStories />
             </div>
-
         }
     }
 }
