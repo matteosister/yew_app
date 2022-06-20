@@ -51,13 +51,9 @@ impl Component for TopStories {
     fn view(&self, _ctx: &Context<Self>) -> Html {
         let item_ids = &self.item_ids;
         html! {
-            <div>
-                {
-                    item_ids.into_iter().take(10).map(|item_id| {
-                        html!{<Item item_id={*item_id as i64} />}
-                    }).collect::<Html>()
-                }
-            </div>
+            item_ids.into_iter().take(10).map(|item_id| {
+                html!{<Item item_id={*item_id as i64} />}
+            }).collect::<Html>()
         }
     }
 

@@ -7,6 +7,7 @@ pub struct ItemData {
     by: String,
     title: String,
     url: String,
+    score: i32,
 }
 
 pub enum ItemValue {
@@ -41,11 +42,7 @@ impl Component for Item {
         match msg {
             Msg::FetchFinished(res) => {
                 if let Ok(Some(item_data)) = res {
-                    self.value = ItemValue::Loaded(ItemData {
-                        url: item_data.url,
-                        by: item_data.by,
-                        title: item_data.title,
-                    });
+                    self.value = ItemValue::Loaded(item_data);
                 }
             }
         }
@@ -55,9 +52,12 @@ impl Component for Item {
     fn view(&self, _ctx: &Context<Self>) -> Html {
         html! {
             if let ItemValue::Loaded(item_data) = &self.value {
-                <div><h4> <a href={item_data.url.to_string()}>{&item_data.title}</a></h4></div>
+                <div class="row">
+                    <a class="link-primary" href={item_data.url.to_string()}>{&item_data.title}</a>
+                    <div>{item_data.score}<span class="text-secondary">{" points by "}</span>{&item_data.by}</div>
+                </div>
             } else {
-                <div>{"loading..."}</div>
+                <div class="row">{"loading..."}</div>
             }
         }
     }

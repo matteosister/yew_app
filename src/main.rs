@@ -23,12 +23,10 @@ impl Component for Model {
     }
 
     fn view(&self, _ctx: &Context<Self>) -> Html {
-        // This gives us a component's "`Scope`" which allows us to send messages, etc to the component.
-        //let link = ctx.link();
         html! {
             <div class="container-lg">
                 <div class="row">
-                    <div class="col"><h1>{ "Yew App" }</h1></div>
+                    <div class="col"><h1>{ "Hacker NYews" }</h1></div>
                     <div class="col"><Clock alignment={clock::Alignment::Right} /></div>
                 </div>
                 <hr />
