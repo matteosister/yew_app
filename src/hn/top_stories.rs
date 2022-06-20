@@ -1,6 +1,5 @@
 use crate::hn::top_stories::Msg::FetchFinished;
 use reqwasm::http::Request;
-use serde::Deserialize;
 use yew::prelude::*;
 
 use super::item::*;
@@ -38,7 +37,7 @@ impl Component for TopStories {
         }
     }
 
-    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
+    fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
             FetchFinished(res) => {
                 if let Ok(items) = res {
@@ -49,7 +48,7 @@ impl Component for TopStories {
         true
     }
 
-    fn view(&self, ctx: &Context<Self>) -> Html {
+    fn view(&self, _ctx: &Context<Self>) -> Html {
         let item_ids = &self.item_ids;
         html! {
             <div>
