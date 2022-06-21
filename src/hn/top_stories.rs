@@ -1,4 +1,5 @@
 use crate::hn::top_stories::Msg::FetchFinished;
+use crate::utils::pager::Paginator;
 use reqwasm::http::Request;
 use yew::prelude::*;
 
@@ -8,17 +9,21 @@ const URL: &str = "https://hacker-news.firebaseio.com/v0/topstories.json";
 
 pub struct TopStories {
     fetch_url: String,
+    page: u8,
     pub item_ids: Vec<u32>,
 }
 
 pub enum Msg {
     FetchFinished(Result<Vec<u32>, reqwasm::Error>),
+    NextPage,
 }
 
 #[derive(Properties, PartialEq)]
 pub struct TopStoriesProperties {
     #[prop_or_default]
     pub fetch_url: Option<String>,
+    #[prop_or(1)]
+    pub page: u8,
 }
 
 impl Component for TopStories {
@@ -33,6 +38,7 @@ impl Component for TopStories {
                 .as_ref()
                 .unwrap_or(&URL.to_string())
                 .to_string(),
+            page: ctx.props().page,
             item_ids: vec![],
         }
     }
@@ -41,19 +47,32 @@ impl Component for TopStories {
         match msg {
             FetchFinished(res) => {
                 if let Ok(items) = res {
+                    log::debug!("num of items {}", items.len());
                     self.item_ids = items;
                 }
+            }
+            Msg::NextPage => {
+                self.page += 1;
             }
         }
         true
     }
 
-    fn view(&self, _ctx: &Context<Self>) -> Html {
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        log::debug!("view called");
+        let link = ctx.link();
         let item_ids = &self.item_ids;
+        let paginator = Paginator::new(10);
+        let actual_page = paginator.get_page(item_ids, self.page as usize);
+        log::debug!("actual page {}", self.page);
         html! {
-            item_ids.into_iter().take(10).map(|item_id| {
-                html!{<Item item_id={*item_id as i64} />}
-            }).collect::<Html>()
+            <div class="top_stories">
+                {actual_page.iter().map(|item_id| {
+                    log::debug!("loading {}", item_id);
+                    html!{<Item key={item_id.to_string()} item_id={*item_id as i64} />}
+                }).collect::<Html>()}
+                <button onclick={link.callback(|_| Msg::NextPage)} type="button" class="btn btn-primary">{"load more..."}</button>
+            </div>
         }
     }
 
@@ -68,9 +87,6 @@ impl Component for TopStories {
             let fetched_top_stories: Result<Vec<u32>, reqwasm::Error> =
                 Request::get(&url).send().await.unwrap().json().await;
             link.send_message(FetchFinished(fetched_top_stories))
-            //self.item_ids = fetched_top_stories;
         });
-
-        //ctx.link().send_message(Msg::FetchFinished(top_stories));
     }
 }

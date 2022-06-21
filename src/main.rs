@@ -2,6 +2,7 @@ use yew::prelude::*;
 
 mod clock;
 mod hn;
+mod utils;
 
 use clock::Clock;
 use hn::*;

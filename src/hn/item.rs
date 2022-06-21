@@ -3,16 +3,24 @@ use serde::Deserialize;
 use yew::prelude::*;
 
 #[derive(Deserialize)]
-pub struct ItemData {
-    by: String,
-    title: String,
-    url: String,
-    score: i32,
+pub struct HnItem {
+    id: usize,
+    by: Option<String>,
+    title: Option<String>,
+    url: Option<String>,
+    score: Option<i32>,
+    r#type: Option<String>,
+}
+
+impl HnItem {
+    pub fn title(&self) -> String {
+        self.title.as_ref().unwrap_or(&"".to_string()).to_owned()
+    }
 }
 
 pub enum ItemValue {
     NotAsked,
-    Loaded(ItemData),
+    Loaded(HnItem),
 }
 
 pub struct Item {
@@ -20,7 +28,7 @@ pub struct Item {
 }
 
 pub enum Msg {
-    FetchFinished(Result<Option<ItemData>, reqwasm::Error>),
+    FetchFinished(Result<Option<HnItem>, reqwasm::Error>),
 }
 
 #[derive(Properties, PartialEq)]
@@ -51,10 +59,10 @@ impl Component for Item {
 
     fn view(&self, _ctx: &Context<Self>) -> Html {
         html! {
-            if let ItemValue::Loaded(item_data) = &self.value {
+            if let ItemValue::Loaded(hn_item) = &self.value {
                 <div class="row">
-                    <a class="link-primary" href={item_data.url.to_string()}>{&item_data.title}</a>
-                    <div>{item_data.score}<span class="text-secondary">{" points by "}</span>{&item_data.by}</div>
+                    <a class="link-primary" href={hn_item.url.as_ref().cloned()}>{hn_item.title()}</a>
+                    //<div>{hn_item.score}<span class="text-secondary">{" points by "}</span>{&hn_item.by}</div>
                 </div>
             } else {
                 <div class="row">{"loading..."}</div>
@@ -75,7 +83,6 @@ impl Component for Item {
         wasm_bindgen_futures::spawn_local(async move {
             let item = Request::get(&url).send().await.unwrap().json().await;
             link.send_message(Msg::FetchFinished(item))
-            //self.item_ids = fetched_top_stories;
         });
     }
 }
