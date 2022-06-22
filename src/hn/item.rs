@@ -1,3 +1,5 @@
+use crate::hn::by::By;
+use crate::hn::score::Score;
 use reqwasm::http::Request;
 use serde::Deserialize;
 use yew::prelude::*;
@@ -58,16 +60,20 @@ impl Component for Item {
     }
 
     fn view(&self, _ctx: &Context<Self>) -> Html {
-        html! {
+        html! (
             if let ItemValue::Loaded(hn_item) = &self.value {
                 <div class="row">
                     <a class="link-primary" href={hn_item.url.as_ref().cloned()}>{hn_item.title()}</a>
                     //<div>{hn_item.score}<span class="text-secondary">{" points by "}</span>{&hn_item.by}</div>
+                    <div>
+                        <Score value={hn_item.score} />
+                        <By value={hn_item.by.as_ref().map(|v| v.to_string())} />
+                    </div>
                 </div>
             } else {
                 <div class="row">{"loading..."}</div>
             }
-        }
+        )
     }
 
     fn rendered(&mut self, ctx: &Context<Self>, first_render: bool) {
