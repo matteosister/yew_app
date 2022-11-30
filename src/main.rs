@@ -1,17 +1,19 @@
 use yew::prelude::*;
+use yew_router::prelude::*;
 
 mod clock;
 mod hn;
+mod route;
 mod utils;
 
 use clock::Clock;
-use hn::*;
+use route::{switch, Route};
 
 enum Msg {}
 
-struct Model {}
+struct App {}
 
-impl Component for Model {
+impl Component for App {
     type Message = Msg;
     type Properties = ();
 
@@ -20,24 +22,26 @@ impl Component for Model {
     }
 
     fn update(&mut self, _ctx: &Context<Self>, _msg: Self::Message) -> bool {
-        false
+        true
     }
 
     fn view(&self, _ctx: &Context<Self>) -> Html {
         html! {
-            <div class="container-lg">
-                <div class="row">
-                    <div class="col"><h1>{ "Hacker NYews" }</h1></div>
-                    <div class="col"><Clock alignment={clock::Alignment::Right} /></div>
+            <BrowserRouter>
+                <div class="container-lg">
+                    <div class="row">
+                        <div class="col"><h1>{ "Hacker NYews" }</h1></div>
+                        <div class="col"><Clock alignment={clock::Alignment::Right} /></div>
+                    </div>
+                    <hr />
+                    <Switch<Route> render={switch} />
                 </div>
-                <hr />
-                <TopStories />
-            </div>
+            </BrowserRouter>
         }
     }
 }
 
 fn main() {
     wasm_logger::init(wasm_logger::Config::default());
-    yew::start_app::<Model>();
+    yew::Renderer::<App>::new().render();
 }

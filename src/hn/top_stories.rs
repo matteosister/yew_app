@@ -1,7 +1,9 @@
 use crate::hn::top_stories::Msg::FetchFinished;
+use crate::route::Route;
 use crate::utils::pager::Paginator;
 use reqwasm::http::Request;
 use yew::prelude::*;
+use yew_router::prelude::*;
 
 use super::item::*;
 
@@ -15,10 +17,9 @@ pub struct TopStories {
 
 pub enum Msg {
     FetchFinished(Result<Vec<u32>, reqwasm::Error>),
-    NextPage,
 }
 
-#[derive(Properties, PartialEq)]
+#[derive(Properties, PartialEq, Debug)]
 pub struct TopStoriesProperties {
     #[prop_or_default]
     pub fetch_url: Option<String>,
@@ -31,6 +32,7 @@ impl Component for TopStories {
     type Properties = TopStoriesProperties;
 
     fn create(ctx: &Context<Self>) -> Self {
+        log::debug!("create");
         Self {
             fetch_url: ctx
                 .props()
@@ -51,27 +53,29 @@ impl Component for TopStories {
                     self.item_ids = items;
                 }
             }
-            Msg::NextPage => {
-                self.page += 1;
-            }
         }
         true
     }
 
-    fn view(&self, ctx: &Context<Self>) -> Html {
+    fn changed(&mut self, ctx: &Context<Self>, old_props: &Self::Properties) -> bool {
+        self.page = ctx.props().page;
+        self.page != old_props.page
+    }
+
+    fn view(&self, _ctx: &Context<Self>) -> Html {
         log::debug!("view called");
-        let link = ctx.link();
         let item_ids = &self.item_ids;
         let paginator = Paginator::new(10);
         let actual_page = paginator.get_page(item_ids, self.page as usize);
-        log::debug!("actual page {}", self.page);
+        log::debug!("actual page {:?}", self.page);
         html! {
             <div class="top_stories">
                 {actual_page.iter().map(|item_id| {
                     log::debug!("loading {}", item_id);
                     html!{<Item key={item_id.to_string()} item_id={*item_id as i64} />}
                 }).collect::<Html>()}
-                <button onclick={link.callback(|_| Msg::NextPage)} type="button" class="btn btn-primary">{"load more..."}</button>
+                // <button onclick={link.callback(|_| Msg::NextPage)} type="button" class="btn btn-primary">{"load more..."}</button>
+                <Link<Route> to={Route::Page { num: self.page + 1 }}>{ "load more..." }</Link<Route>>
             </div>
         }
     }
